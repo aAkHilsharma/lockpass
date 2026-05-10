@@ -1,0 +1,61 @@
+export {
+  ApiErrorSchema,
+  ApiSuccessSchema,
+  KeysetSchema,
+  DeviceTypeSchema,
+  DeviceInfoSchema,
+  type ApiError,
+  type Keyset,
+  type DeviceType,
+} from "./common.js";
+
+export {
+  SignupRequestSchema,
+  SignupResponseSchema,
+  LoginRequestSchema,
+  LoginResponseSchema,
+  RefreshRequestSchema,
+  RefreshResponseSchema,
+  LogoutRequestSchema,
+  type SignupRequest,
+  type SignupResponse,
+  type LoginRequest,
+  type LoginResponse,
+  type RefreshRequest,
+  type RefreshResponse,
+  type LogoutRequest,
+} from "./auth.js";
+
+export {
+  VaultSummarySchema,
+  ListVaultsResponseSchema,
+  CreateVaultRequestSchema,
+  CreateVaultResponseSchema,
+  GetVaultKeyResponseSchema,
+  UpdateVaultMetadataRequestSchema,
+  UpdateVaultMetadataResponseSchema,
+  type VaultSummary,
+  type ListVaultsResponse,
+  type CreateVaultRequest,
+  type CreateVaultResponse,
+  type GetVaultKeyResponse,
+  type UpdateVaultMetadataRequest,
+  type UpdateVaultMetadataResponse,
+} from "./vaults.js";
+
+export {
+  ListItemsResponseSchema,
+  CreateItemRequestSchema,
+  CreateItemResponseSchema,
+  UpdateItemRequestSchema,
+  UpdateItemResponseSchema,
+  DeleteItemRequestSchema,
+  DeleteItemResponseSchema,
+  type ListItemsResponse,
+  type CreateItemRequest,
+  type CreateItemResponse,
+  type UpdateItemRequest,
+  type UpdateItemResponse,
+  type DeleteItemRequest,
+  type DeleteItemResponse,
+} from "./items.js";
