@@ -13,7 +13,7 @@ export default function Hero() {
             across your browser and web app — for the people who still read the fine print.
           </p>
           <div className="hero-cta">
-            <a href="#extension" className="btn btn-primary">
+            <a href="/signup" className="btn btn-primary">
               Create your vault
               <svg className="arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path d="M1 6h10M6 1l5 5-5 5" stroke="currentColor" strokeWidth="1.4" />

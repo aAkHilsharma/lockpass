@@ -44,8 +44,14 @@ export function buildServer() {
 
   app.setErrorHandler((error, _request, reply) => {
     if (error instanceof AppError) return sendError(reply, error);
-    app.log.error(error);
-    return reply.status(500).send({ error: { code: "INTERNAL_ERROR", message: "Internal server error" } });
+    const cause = (error as any).cause;
+    const sourceError = cause?.sourceError ?? cause;
+    app.log.error({
+      err: { message: error.message, name: error.name },
+      cause: cause ? { message: cause.message } : undefined,
+      source: sourceError ? { message: sourceError.message, cause: String((sourceError as any)?.cause) } : undefined,
+    }, "Unhandled error");
+    return reply.status(500).send({ error: { code: "INTERNAL_ERROR", message: error.message ?? "Internal server error" } });
   });
 
   app.register(authRoutes);
@@ -54,6 +60,7 @@ export function buildServer() {
   app.register(itemRoutes);
 
   app.get("/health", async () => ({ status: "ok" }));
+
 
   return app;
 }
