@@ -7,6 +7,7 @@ import { authRoutes } from "./routes/auth.js";
 import { meRoutes } from "./routes/me.js";
 import { vaultRoutes } from "./routes/vaults.js";
 import { itemRoutes } from "./routes/items.js";
+import { unlockKeyRoutes } from "./routes/unlockKeys.js";
 import { AppError, sendError } from "./lib/errors.js";
 
 declare module "@fastify/jwt" {
@@ -44,20 +45,22 @@ export function buildServer() {
 
   app.setErrorHandler((error, _request, reply) => {
     if (error instanceof AppError) return sendError(reply, error);
-    const cause = (error as any).cause;
-    const sourceError = cause?.sourceError ?? cause;
+    const err = error as Error & { cause?: unknown };
+    const cause = err.cause as Record<string, unknown> | undefined;
+    const sourceError = (cause?.sourceError ?? cause) as Record<string, unknown> | undefined;
     app.log.error({
-      err: { message: error.message, name: error.name },
+      err: { message: err.message, name: err.name },
       cause: cause ? { message: cause.message } : undefined,
-      source: sourceError ? { message: sourceError.message, cause: String((sourceError as any)?.cause) } : undefined,
+      source: sourceError ? { message: sourceError.message, cause: String(sourceError?.cause) } : undefined,
     }, "Unhandled error");
-    return reply.status(500).send({ error: { code: "INTERNAL_ERROR", message: error.message ?? "Internal server error" } });
+    return reply.status(500).send({ error: { code: "INTERNAL_ERROR", message: err.message ?? "Internal server error" } });
   });
 
   app.register(authRoutes);
   app.register(meRoutes);
   app.register(vaultRoutes);
   app.register(itemRoutes);
+  app.register(unlockKeyRoutes);
 
   app.get("/health", async () => ({ status: "ok" }));
 

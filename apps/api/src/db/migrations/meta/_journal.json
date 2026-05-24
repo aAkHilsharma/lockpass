@@ -8,6 +8,13 @@
       "when": 1778941918675,
       "tag": "0000_quick_sumo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1779607237853,
+      "tag": "0001_empty_mephisto",
+      "breakpoints": true
     }
   ]
 }

@@ -112,6 +112,31 @@ export const sessions = pgTable(
   ]
 );
 
+export const sessionUnlockKeys = pgTable(
+  "session_unlock_keys",
+  {
+    id: uuid("id").primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => sessions.id),
+    clientKey: text("client_key").notNull(),
+    expiresAt: timestamp("expires_at", {
+      withTimezone: true,
+      mode: "string",
+    }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (t) => [
+    index("session_unlock_keys_user_id_idx").on(t.userId),
+    index("session_unlock_keys_session_id_idx").on(t.sessionId),
+  ]
+);
+
 export const vaults = pgTable("vaults", {
   id: uuid("id").primaryKey(),
   ownerUserId: uuid("owner_user_id")

@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { randomUUID } from "crypto";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { vaults, vaultMembers, vaultMemberKeys } from "../db/schema.js";
 import { badRequest, notFound, forbidden, conflict, sendError } from "../lib/errors.js";
@@ -17,7 +17,7 @@ export async function vaultRoutes(app: FastifyInstance) {
     if (vaultIds.length === 0) return reply.send({ data: [] });
 
     const vaultRows = await db.query.vaults.findMany({
-      where: and(...vaultIds.map((id) => eq(vaults.id, id))),
+      where: inArray(vaults.id, vaultIds),
     });
 
     const vaultMap = new Map(vaultRows.map((v) => [v.id, v]));
@@ -114,6 +114,25 @@ export async function vaultRoutes(app: FastifyInstance) {
         wrappedVaultKeyNonce: memberKey.wrappedVaultKeyNonce,
       },
     });
+  });
+
+  app.delete("/vaults/:vaultId", { preHandler: [app.authenticate] }, async (request, reply) => {
+    const { userId } = request.user;
+    const { vaultId } = request.params as { vaultId: string };
+
+    const membership = await db.query.vaultMembers.findFirst({
+      where: and(eq(vaultMembers.vaultId, vaultId), eq(vaultMembers.userId, userId), eq(vaultMembers.status, "active")),
+    });
+    if (!membership || membership.role !== "owner") return sendError(reply, forbidden());
+
+    const now = new Date().toISOString();
+    await db.transaction(async (tx) => {
+      await tx.update(vaults).set({ archivedAt: now, updatedAt: now }).where(eq(vaults.id, vaultId));
+      await tx.update(vaultMembers).set({ status: "inactive", updatedAt: now })
+        .where(and(eq(vaultMembers.vaultId, vaultId), eq(vaultMembers.userId, userId)));
+    });
+
+    return reply.send({ data: { success: true } });
   });
 
   app.put("/vaults/:vaultId/metadata", { preHandler: [app.authenticate] }, async (request, reply) => {

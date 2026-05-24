@@ -11,6 +11,7 @@ import {
   vaults,
   vaultMembers,
   vaultMemberKeys,
+  sessionUnlockKeys,
 } from "../db/schema.js";
 import { hashPassword, verifyPassword } from "../lib/passwords.js";
 import {
@@ -276,6 +277,10 @@ export async function authRoutes(app: FastifyInstance) {
       .update(sessions)
       .set({ revokedAt: now })
       .where(eq(sessions.refreshTokenHash, tokenHash));
+
+    await db
+      .delete(sessionUnlockKeys)
+      .where(eq(sessionUnlockKeys.sessionId, request.user.sessionId));
 
     return reply.send({ data: { success: true } });
   });
