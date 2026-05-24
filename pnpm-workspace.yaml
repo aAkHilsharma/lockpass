@@ -1,3 +1,27 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# Supply-chain hardening: refuse any registry version published less than
+# this many minutes ago. Gives the ecosystem time to detect and yank a
+# malicious release before it can land in our lockfile.
+# 21600 = 15 days.
+minimumReleaseAge: 21600
+
+# Fail installs on unmet/conflicting peer dependencies instead of silently
+# resolving them.
+strictPeerDependencies: true
+
+# Pin build tooling to versions already older than the minimumReleaseAge
+# window so installs pass the maturity check WITHOUT excluding anything from
+# it. The newest turbo/rollup release frequently sits inside the window; bump
+# these once a newer release has aged past it.
+overrides:
+  turbo: 2.9.11
+  rollup: 4.60.3
+  tsx: 4.21.0
+  postcss: 8.5.14
+  esbuild: 0.25.12
+  fast-jwt: 6.2.4
+  fast-uri: 3.1.2
+  "@types/node": 22.10.5
