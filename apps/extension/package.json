@@ -1,0 +1,26 @@
+{
+  "name": "@lockpass/extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "prepare-types": "wxt prepare",
+    "type-check": "wxt prepare && tsc --noEmit"
+  },
+  "dependencies": {
+    "@lockpass/api-client": "workspace:*",
+    "@lockpass/crypto": "workspace:*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/chrome": ">=0.0.250",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@wxt-dev/module-react": "^1.1.0",
+    "typescript": "^5.7.3",
+    "wxt": "^0.20.0"
+  }
+}

@@ -9,9 +9,9 @@ node_modules/
 apps/web/.next/
 apps/web/out/
 
-# Plasmo / extension build
-apps/extension/.plasmo/
-apps/extension/build/
+# WXT extension (build output + generated types)
+apps/extension/.output/
+apps/extension/.wxt/
 
 # Build outputs
 dist/
