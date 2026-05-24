@@ -18,7 +18,7 @@ export default function SignupPage() {
     setError('');
     setLoading(true);
     try {
-      const crypto = signupCrypto(password);
+      const crypto = await signupCrypto(password);
 
       const result = await api.auth.signup({
         email,
@@ -39,7 +39,7 @@ export default function SignupPage() {
         email: result.user.email,
       });
 
-      setUserRootKey(crypto.userRootKey);
+      await setUserRootKey(crypto.userRootKey);
       setVaultKey(result.vault.id, crypto.vaultKey);
 
       // Pass recovery key via sessionStorage so /recovery page can show it

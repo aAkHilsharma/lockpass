@@ -28,7 +28,7 @@ export default function LoginPage() {
         },
       });
 
-      const userRootKey = loginCrypto(password, {
+      const userRootKey = await loginCrypto(password, {
         kdfSalt: result.keyset.kdfSalt,
         kdfParams: result.keyset.kdfParams,
         wrappedUserRootKey: result.keyset.wrappedUserRootKey,
@@ -42,7 +42,7 @@ export default function LoginPage() {
         email: result.user.email,
       });
 
-      setUserRootKey(userRootKey);
+      await setUserRootKey(userRootKey);
 
       // Fetch vaults and unlock their keys
       const vaults = await api.vaults.list(result.session.accessToken);

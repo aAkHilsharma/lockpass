@@ -88,6 +88,7 @@ export function CreateLoginPanel({ vaultId, item, onSave, onClose }: Props) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Untitled"
+            autoComplete="off"
             className={cn(
               'w-full text-[22px] font-semibold bg-transparent border-0 outline-none text-ink placeholder:text-ink-4',
               titleMissing && 'placeholder:text-red-400'
@@ -112,6 +113,7 @@ export function CreateLoginPanel({ vaultId, item, onSave, onClose }: Props) {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter email or username"
+              autoComplete="off"
               className="border-0 p-0 h-auto text-[14px] shadow-none rounded-none bg-transparent focus-visible:ring-0 placeholder:text-ink-4"
             />
           </div>
@@ -129,6 +131,7 @@ export function CreateLoginPanel({ vaultId, item, onSave, onClose }: Props) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
+              autoComplete="new-password"
               className="border-0 p-0 h-auto text-[14px] shadow-none rounded-none bg-transparent focus-visible:ring-0 placeholder:text-ink-4 font-mono"
             />
           </div>

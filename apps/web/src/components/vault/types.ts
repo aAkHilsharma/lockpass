@@ -17,4 +17,7 @@ export type VaultItem = {
 export type VaultMeta = {
   id: string;
   name: string;
+  icon?: string;
+  color?: string;
+  metadataRevision: number;
 };

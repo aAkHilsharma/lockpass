@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { Providers } from "@/components/Providers";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +32,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body><AuthProvider>{children}</AuthProvider></body>
+      <body><Providers><AuthProvider>{children}</AuthProvider></Providers></body>
     </html>
   );
 }

@@ -1,9 +1,10 @@
 import {
-  deriveUnlockKey, generateKey, generateKdfSalt,
+  generateKey, generateKdfSalt,
   wrapKey, unwrapKey, encrypt, decrypt, deriveItemKey,
   toBase64url, fromBase64url, DEFAULT_KDF_PARAMS,
 } from '@lockpass/crypto';
 import type { VaultItemV1 } from '@lockpass/domain';
+import { deriveUnlockKeyAsync } from './kdf-client';
 
 // Recovery key: 32 random bytes shown as 8 groups of 4 uppercase hex chars
 // e.g. A3F2-9B1C-E74D-...
@@ -16,9 +17,9 @@ export function generateRecoveryKey(): { raw: Uint8Array; formatted: string } {
   return { raw, formatted };
 }
 
-export function signupCrypto(password: string) {
+export async function signupCrypto(password: string) {
   const kdfSalt = generateKdfSalt();
-  const masterUnlockKey = deriveUnlockKey(password, kdfSalt, DEFAULT_KDF_PARAMS);
+  const masterUnlockKey = await deriveUnlockKeyAsync(password, kdfSalt, DEFAULT_KDF_PARAMS);
 
   const userRootKey = generateKey();
   const vaultKey = generateKey();
@@ -58,7 +59,7 @@ export function signupCrypto(password: string) {
   };
 }
 
-export function loginCrypto(
+export async function loginCrypto(
   password: string,
   keyset: {
     kdfSalt: string;
@@ -66,8 +67,8 @@ export function loginCrypto(
     wrappedUserRootKey: string;
     wrappedUserRootKeyNonce: string;
   }
-): Uint8Array {
-  const masterUnlockKey = deriveUnlockKey(
+): Promise<Uint8Array> {
+  const masterUnlockKey = await deriveUnlockKeyAsync(
     password,
     fromBase64url(keyset.kdfSalt),
     keyset.kdfParams
@@ -114,6 +115,43 @@ export function decryptItem(
     itemKey
   );
   return JSON.parse(new TextDecoder().decode(plaintext)) as VaultItemV1;
+}
+
+export interface VaultMetadata {
+  name: string;
+  icon?: string;
+  color?: string;
+}
+
+export function decryptVaultMetadata(ciphertext: string, nonce: string, vaultKey: Uint8Array): VaultMetadata {
+  const plaintext = decrypt(fromBase64url(ciphertext), fromBase64url(nonce), vaultKey);
+  return JSON.parse(new TextDecoder().decode(plaintext)) as VaultMetadata;
+}
+
+export function encryptVaultMetadata(meta: VaultMetadata, vaultKey: Uint8Array) {
+  const bytes = new TextEncoder().encode(JSON.stringify({ schemaVersion: 1, ...meta }));
+  const sealed = encrypt(bytes, vaultKey);
+  return { ciphertext: toBase64url(sealed.ciphertext), nonce: toBase64url(sealed.nonce) };
+}
+
+export function createVaultCrypto(meta: VaultMetadata, userRootKey: Uint8Array) {
+  const vaultKey = generateKey();
+  const wrappedVaultKey = wrapKey(vaultKey, userRootKey);
+  const metadataBytes = new TextEncoder().encode(JSON.stringify({ schemaVersion: 1, ...meta }));
+  const encryptedMetadata = encrypt(metadataBytes, vaultKey);
+  return {
+    vaultKey,
+    request: {
+      metadataSchemaVersion: 1 as const,
+      metadataCiphertext: toBase64url(encryptedMetadata.ciphertext),
+      metadataNonce: toBase64url(encryptedMetadata.nonce),
+      currentKeyVersion: 1,
+      memberKey: {
+        wrappedVaultKey: toBase64url(wrappedVaultKey.ciphertext),
+        wrappedVaultKeyNonce: toBase64url(wrappedVaultKey.nonce),
+      },
+    },
+  };
 }
 
 export function downloadRecoveryKey(formatted: string, email: string) {
