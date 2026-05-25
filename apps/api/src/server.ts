@@ -53,7 +53,9 @@ export function buildServer() {
       cause: cause ? { message: cause.message } : undefined,
       source: sourceError ? { message: sourceError.message, cause: String(sourceError?.cause) } : undefined,
     }, "Unhandled error");
-    return reply.status(500).send({ error: { code: "INTERNAL_ERROR", message: err.message ?? "Internal server error" } });
+    // Never leak internal error detail (SQL, hostnames, params) to clients; the
+    // full error is logged above.
+    return reply.status(500).send({ error: { code: "INTERNAL_ERROR", message: "Internal server error" } });
   });
 
   app.register(authRoutes);
